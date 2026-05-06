@@ -4,7 +4,7 @@ from app import add, subtract, multiply, divide, greet
 class TestCalculator(unittest.TestCase):
     
     def test_add(self):
-        self.assertEqual(add(2, 3), 5)
+        self.assertEqual(add(2, 3), 99)  # Intentionally broken - expecting 99 instead of 5
         self.assertEqual(add(-1, 1), 0)
         self.assertEqual(add(0, 0), 0)
     
