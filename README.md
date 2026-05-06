@@ -8,6 +8,8 @@ This repository demonstrates Jenkins and GitHub integration with automated statu
 - ✅ GitHub status checks integration
 - ✅ Multi-branch pipeline support
 - ✅ PR merge validation
+- ✅ **Instant webhook-triggered builds**
+- ✅ Branch protection with test requirements
 
 ## 📋 Setup
 
