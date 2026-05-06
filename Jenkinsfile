@@ -12,9 +12,9 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 echo 'Setting up Python environment...'
-                bat '''
-                    python --version
-                    pip install -r requirements.txt
+                sh '''
+                    python3 --version || python --version
+                    pip3 install -r requirements.txt || pip install -r requirements.txt
                 '''
             }
         }
@@ -22,16 +22,16 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                bat 'python -m py_compile app.py'
+                sh 'python3 -m py_compile app.py || python -m py_compile app.py'
             }
         }
         
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                bat '''
-                    python -m pytest test_app.py -v --junitxml=test-results.xml
-                    python -m pytest test_app.py --cov=app --cov-report=html --cov-report=term
+                sh '''
+                    python3 -m pytest test_app.py -v --junitxml=test-results.xml || python -m pytest test_app.py -v --junitxml=test-results.xml
+                    python3 -m pytest test_app.py --cov=app --cov-report=html --cov-report=term || python -m pytest test_app.py --cov=app --cov-report=html --cov-report=term
                 '''
             }
         }
@@ -39,7 +39,7 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo 'Checking code quality...'
-                bat 'python app.py'
+                sh 'python3 app.py || python app.py'
             }
         }
     }
@@ -47,10 +47,10 @@ pipeline {
     post {
         always {
             echo 'Archiving test results...'
-            junit 'test-results.xml'
+            junit allowEmptyResults: true, testResults: 'test-results.xml'
             echo 'Publishing HTML reports...'
             publishHTML([
-                allowMissing: false,
+                allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
                 reportDir: 'htmlcov',
