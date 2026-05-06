@@ -9,40 +9,60 @@ pipeline {
             }
         }
         
+        stage('Setup Python Environment') {
+            steps {
+                echo 'Setting up Python environment...'
+                sh '''
+                    python3 --version || python --version
+                    pip3 install -r requirements.txt || pip install -r requirements.txt
+                '''
+            }
+        }
+        
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                // Add your build commands here
-                // Example: sh 'npm install' or sh 'mvn clean install'
+                sh 'python3 -m py_compile app.py || python -m py_compile app.py'
             }
         }
         
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // Add your test commands here
-                // Example: sh 'npm test' or sh 'mvn test'
+                sh '''
+                    python3 -m pytest test_app.py -v --junitxml=test-results.xml || python -m pytest test_app.py -v --junitxml=test-results.xml
+                    python3 -m pytest test_app.py --cov=app --cov-report=html --cov-report=term || python -m pytest test_app.py --cov=app --cov-report=html --cov-report=term
+                '''
             }
         }
         
-        stage('Deploy') {
+        stage('Code Quality') {
             steps {
-                echo 'Deploying application...'
-                // Add your deployment commands here
+                echo 'Checking code quality...'
+                sh 'python3 app.py || python app.py'
             }
         }
     }
     
     post {
+        always {
+            echo 'Archiving test results...'
+            junit allowEmptyResults: true, testResults: 'test-results.xml'
+            echo 'Publishing HTML reports...'
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'htmlcov',
+                reportFiles: 'index.html',
+                reportName: 'Coverage Report'
+            ])
+        }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline completed successfully! ✓'
         }
         failure {
-            echo 'Pipeline failed!'
-        }
-        always {
-            echo 'Cleaning up workspace...'
-            cleanWs()
+            echo 'Pipeline failed! ✗'
         }
     }
 }
