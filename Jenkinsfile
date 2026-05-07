@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    options {
+        quietPeriod(5)  // Wait 5 seconds after webhook trigger to avoid race condition
+    }
+    
     stages {
         stage('Checkout') {
             steps {
